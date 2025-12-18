@@ -27,8 +27,7 @@ async function initLiff() {
       error.value = 'LIFF SDK not loaded'
       return
     }
-    // const liffId = import.meta.env.VITE_CHANNEL_ID
-    const liffId = '2008727136' // Temporary hardcode for testing
+    const liffId = import.meta.env.VITE_CHANNEL_ID
     if (!liffId) {
       error.value = 'VITE_CHANNEL_ID is not set in environment'
       return
