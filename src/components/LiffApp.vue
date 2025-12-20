@@ -5,6 +5,7 @@
     <div v-else>
       <div v-if="loggedIn">
         <h1>Welcome to rented hub</h1>
+        <div v-if="profile">LINE user: {{ profile.displayName }} ({{ profile.userId }})</div>
         <button @click="logout">Logout</button>
       </div>
       <div v-else>
@@ -20,6 +21,7 @@ import { ref, onMounted } from 'vue'
 const loggedIn = ref(false)
 const initialized = ref(false)
 const error = ref('')
+const profile = ref(null)
 
 async function initLiff() {
   try {
@@ -35,8 +37,19 @@ async function initLiff() {
     await window.liff.init({ liffId })
     initialized.value = true
     loggedIn.value = window.liff.isLoggedIn()
+    if (loggedIn.value) await fetchProfile()
   } catch (e) {
     error.value = e.message || String(e)
+  }
+}
+
+async function fetchProfile() {
+  try {
+    if (!window.liff) return
+    const p = await window.liff.getProfile()
+    profile.value = p
+  } catch (e) {
+    // ignore profile errors
   }
 }
 
@@ -51,6 +64,7 @@ function logout() {
   try {
     window.liff.logout()
     loggedIn.value = false
+    profile.value = null
   } catch (e) {
     error.value = e.message || String(e)
   }
