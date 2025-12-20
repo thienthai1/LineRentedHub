@@ -51,10 +51,10 @@ async function fetchProfile() {
     if (!window.liff) return
     const p = await window.liff.getProfile()
     profile.value = p
+    console.log('Fetching backend profile for userId', p.userId)
+    console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL)
     // check backend if this line user exists
     try {
-      console.log('Fetching backend profile for userId', p.userId)
-      console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL)
       const backend = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
       const res = await axios.get(`${backend}/api/auth/public/profile/${encodeURIComponent(p.userId)}`)
       if (res.data && res.data.ok && res.data.user) {
