@@ -6,6 +6,7 @@
       <div v-if="loggedIn">
         <h1>Welcome to rented hub</h1>
         <div v-if="profile">LINE user: {{ profile.displayName }} ({{ profile.userId }})</div>
+        <div v-if="lineliffUser">Stored row: {{ lineliffUser.name }} — role: {{ lineliffUser.role }} — contract: {{ lineliffUser.contract_id }}</div>
         <button @click="logout">Logout</button>
       </div>
       <div v-else>
@@ -17,11 +18,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
 const loggedIn = ref(false)
 const initialized = ref(false)
 const error = ref('')
 const profile = ref(null)
+const lineliffUser = ref(null)
 
 async function initLiff() {
   try {
@@ -48,6 +51,16 @@ async function fetchProfile() {
     if (!window.liff) return
     const p = await window.liff.getProfile()
     profile.value = p
+    // check backend if this line user exists
+    try {
+      const backend = (typeof window !== 'undefined' && (window).__BACKEND_URL__) || import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'
+      const res = await axios.get(`${backend}/api/auth/public/profile/${encodeURIComponent(p.userId)}`)
+      if (res.data && res.data.ok && res.data.user) {
+        lineliffUser.value = res.data.user
+      }
+    } catch (e) {
+      // ignore
+    }
   } catch (e) {
     // ignore profile errors
   }
